@@ -30,94 +30,34 @@ class Todo():
         """Displays all the todo items without any filtering"""
         display_todo(self.items_list)
 
-    def get_context(inpt_stmt):
-        """Extracts the context out of the provided message"""
-        context_strings = re.findall('[@][^\s]+', inpt_stmt)
-        contexts = []
-        if(len(context_strings) >= 1):
-            for item in context_strings:
-                context = str(item[1:])
-                contexts.append(context)
-            if(len(contexts) >= 1):
-                context = '|'.join(context for context in contexts)
-        else:
-            context = 'none'
-        return context
-
-    def get_project(inpt_stmt):
-        """Extracts the projects from the user input message"""
-        project_strings = re.findall('[+][^\s]+', inpt_stmt)
-        projects=[]
-        if(len(project_strings) >= 1):
-            for items in project_strings:
-                project = str(items[1:])
-                projects.append(project)
-            if(len(projects) >= 1):
-                projects = '|'.join(project for project in projects)
-        else:
-            projects = 'personal'
-        return projects
-
-    def get_duedate(inpt_stmt):
-        """gets the word 'due' to find the due date and message"""
-        input_message = inpt_stmt.split(' ')
-        duedate_current = ''
-
-        if(inpt_stmt.find('due') > 0):
-            due_indexes = []
-            for words in range(len(input_message)):
-                if input_message[words] == 'due':
-                    due_indexes.append(words)
-            due_index = due_indexes[len(due_indexes)-1]
-            message = ' '.join(msg for msg in input_message[0:due_index])
-            duedate = [date for date in input_message[due_index+1:]]
-            if(check_date(duedate) == 'no error'):
-                duedate_current = get_date(duedate)
-            else:
-                print(check_date(duedate))
-        else:
-            duedate_current = 'tomorrow'
-        return duedate_current, message
-
-    def add_todo_validator(args):
-        """runs all the needed methods to get the message, due date, project and context"""
-        project = Todo.get_project(args)
-        context = Todo.get_context(args)
-        duedate, message = Todo.get_duedate(args)
-        return duedate, message, project, context
 
     def add_todo(self, inpt_stmt):
         """adds the input to the to do list"""
-        duedate_current, message, projects, context = Todo.add_todo_validator(inpt_stmt)
+        duedate_current, message, projects, context = add_todo_parser(inpt_stmt)
         todo = Todoitems(get_todo_count(), 'incomplete',duedate_current, message, str(projects), str(context))
         self.items_list.append(todo)
         write_todo_file(self.items_list)
+        print('\nTask added successfully\n')
 
     def complete_todo(self, serial_number):
         """Completes a todo after taking it's serial number as input"""
-        print('here now')
-        if(check_valid_input(serial_number)):
-            serial_num = serial_number[0]
-            items = []
-            for item in self.items_list:
-                if(item.serial_num == int(serial_num)):
-                    item.status = 'complete'
-                items.append(item)
-            write_todo_file(items)
-        else:
-            print('Not a valid input, please provide a number that is in the list')
+        serial_num = serial_number[0]
+        items = []
+        for item in self.items_list:
+            if(item.serial_num == int(serial_num)):
+                item.status = 'complete'
+            items.append(item)
+        write_todo_file(items)
+        print('Task marked complete')
 
     def delete_todo(self, serial_number):
         """Deletes a todo item from the list using the given serial number"""
-        if(check_valid_input(serial_number)):
-            serial_num = int(serial_number[0])
-            items = []
-            for item in self.items_list:
-                if(item.serial_num != int(serial_num)):
-                    items.append(item)
-            write_todo_file(items)
-        else:
-            print('Not a valid input, please provide a number that is in the list')
+        serial_num = int(serial_number[0])
+        items = []
+        for item in self.items_list:
+            if(item.serial_num != int(serial_num)):
+                items.append(item)
+        write_todo_file(items)
 
     def list_by_project(self):
         """Lists all the todo Items on the basis of project names"""
@@ -244,9 +184,6 @@ class Todo():
     def check_valid_input(self,input_val):
         """To see if provided input for delete or complete is valid or not"""
         if(len(input_val) > 1):
-            print(input_val)
-            print(type(input_val))
-            print(len(input_val))
             return False
         else:
             if(input_val[0].isdigit()):
@@ -440,5 +377,63 @@ def check_by_due_date(inputs):
     else:
         print('not an applicable choice, try again')
 
-"""readdata = read_todo_file()
-todo = Todo(readdata)"""
+def get_context(inpt_statement):
+    """Extracts the context out of the provided message"""
+    context_strings = re.findall('[@][^\s]+', inpt_statement)
+    contexts = []
+    if(len(context_strings) >= 1):
+        for item in context_strings:
+            context = str(item[1:])
+            contexts.append(context)
+        if(len(contexts) >= 1):
+            context = '|'.join(context for context in contexts)
+    else:
+        print('no context found')
+        context = 'none'
+    return context
+
+def get_project(inpt_stmt):
+    """Extracts the projects from the user input message"""
+    project_strings = re.findall('[+][^\s]+', inpt_stmt)
+    projects=[]
+    if(len(project_strings) >= 1):
+        for items in project_strings:
+            project = str(items[1:])
+            projects.append(project)
+        if(len(projects) >= 1):
+            projects = '|'.join(project for project in projects)
+    else:
+        print('no project found, setting to to personal')
+        projects = 'personal'
+    return projects
+
+def get_duedate(inpt_stmt):
+    """gets the word 'due' to find the due date and message"""
+    input_message = inpt_stmt.split(' ')
+    duedate_current = ''
+    message=inpt_stmt
+
+    if(inpt_stmt.find('due') > 0):
+        print('inside')
+        due_indexes = []
+        for words in range(len(input_message)):
+            if input_message[words] == 'due':
+                due_indexes.append(words)
+        due_index = due_indexes[len(due_indexes)-1]
+        message = ' '.join(msg for msg in input_message[0:due_index])
+        duedate = [date for date in input_message[due_index+1:]]
+        if(check_date(duedate) == 'no error'):
+            duedate_current = get_date(duedate)
+        else:
+            print(check_date(duedate))
+    else:
+        print('no due found setting it for tomorrow')
+        duedate_current = 'tomorrow'
+    return duedate_current, message
+
+def add_todo_parser(args):
+    """runs all the needed methods to get the message, due date, project and context"""
+    project = get_project(args)
+    context = get_context(args)
+    duedate, message = get_duedate(args)
+    return duedate, message, project, context

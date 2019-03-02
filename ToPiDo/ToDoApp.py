@@ -1,7 +1,7 @@
 import argparse
 import pandas as pd
 from collections import defaultdict
-#from ToDoClass import *
+from ToDoClass import *
 parser = argparse.ArgumentParser()
 parser.add_argument('echo', nargs='*', default=None)
 help_guide='\nPlease refer to the following commands\
@@ -38,11 +38,12 @@ if __name__=='__main__':
                 print(help_guide)
 
         def call_add(self):
-                if(len(self.input_args) != 0):
-                    input_statement = ' '.join(i for i in inputs[1:])
-                    todo.add_todo(input_statement)
-                else:
-                    print('not valid input, please refer help by running todo addh')
+            if(len(self.input_command) != 0):
+                #print(self.input_command)
+                #input_statement = ' '.join(i for i in self.input_command)
+                todo.add_todo(self.input_command)
+            else:
+                print('not valid input, please refer help by running todo help add')
 
         def call_list(self, *args):
             def call_check_by_due_date():
@@ -77,19 +78,22 @@ if __name__=='__main__':
             result_method = input_len.get(len(inputs[1:]), default)
             result_method()
 
-            def call_complete(self):
-                todo.complete_todo([inputs[1]])
+        def call_complete(self):
+            if(todo.check_valid_input(self.input_command)):
+                todo.complete_todo(self.input_command)
+            else:
+                print('\nElement not present in the list, please insert valid entry\
+                    \nrun todo help add for more\n')
 
-            def call_delete(self):
-                todo.delete_todo([inputs[1]])
-            
-            def call_help(self):
-                help_dict={'addh':add_help,'deleteh':delete_help,'completeh':complete_help,'listh':list_help}
-                help_string=help_dict.get(inputs[0])
-                print(help_string)
-            
+        def call_delete(self):
+            if(todo.check_valid_input(self.input_command)):
+                todo.delete_todo(self.input_command)
+            else:
+                print('\nElement not present in the list, please insert valid entry\
+                    \nrun todo help del for more\n')
+             
         def call_command_help(self):
-            #help_dict=defaultdict(lambda: help_guide)
+            help_dict=defaultdict(lambda: help_guide)
             help_dict['add']=add_help
             help_dict['del']=delete_help
             help_dict['list']=list_help
@@ -97,19 +101,20 @@ if __name__=='__main__':
             print(help_dict[self.input_command])
 
 
-
-
-
     args = parser.parse_args()
     if(args.echo != []):
         inputs = args.echo
         UI = UserInteraction(inputs[0],inputs[1:])
+        readdata = read_todo_file()
+        todo = Todo(readdata)
         choice=defaultdict(lambda:UI.call_help)
         choice['[]']=UI.call_help
         choice['a']=UI.call_add
-        #choice['d']=UI.call_delete
+        choice['d']=UI.call_delete
+        choice['c']=UI.call_complete
         choice['l']=UI.call_list
         choice['help']=UI.call_command_help
         choice[inputs[0]]()
     else:
+        pass
         print(help_guide)
