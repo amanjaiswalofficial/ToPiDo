@@ -24,7 +24,6 @@ list_help='\nPlease use any of the following commands to list todo\
 complete_help='\nPlease try the input in the following format for completing a task\
                     \nc valid_todo_serial_number\
                     \nEx- c 10\n'
-#parser.add_argument('a',)
 
 class UserInteraction:
     inputs = ''

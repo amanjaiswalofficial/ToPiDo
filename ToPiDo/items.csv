@@ -3,8 +3,8 @@ serial_num,status,date,project,context,message
 2,complete,28 feb,devops,john,+Devops talk to @john
 3,incomplete,28 feb,devops,john,+Devops talk to @John
 4,complete,28 feb,devops,john|ron,+Devops talk to @John and @Ron
-5,complete,2 mar,devops|mobile,shyam,+Devops talk to @Shyam about +Mobile
 6,complete,7 mar,android,none,+Android present the functionality
 7,incomplete,11 mar,web,rishabh,+Web discuss with @Rishabh
 8,complete,1 mar,animation,kishan,+Animation review the changes made by @Kishan
-9,incomplete,22 apr,work,meghan|rishabh,+Work discuss plans with @Meghan and @Rishabh
+10,incomplete,15 aug,android|others,none,+Android +Others plan the week ahead
+11,incomplete,2 mar,animation,arjun,+Animation working to find bugs @Arjun

@@ -10,8 +10,8 @@ help_guide='\nPlease refer to the following commands\
             \nc: mark an item as complete (for help run todo completeh)\
             \nd: delete an item from the todolist (for help run tododeleteh)\n'
 add_help='\nPlease try input in the following format for a successful entry\
-            \na +(project name or names if any) message @(context if\
-                any) due due_date (today/tomorrow or any valid DD MON)\
+            \na +(project name or names if any) message @(context if any) \
+due due_date (today/tomorrow or any valid DD MON)\
             \nEx-a +project_name meet with @meghan due 21 jun\n'
 delete_help='\nPlease try the input in the following format for a success entry\
             \nd valid_todo_serial_number\
@@ -36,8 +36,10 @@ if __name__=='__main__':
         
         def call_help(self):
                 print(help_guide)
+        
 
         def call_add(self):
+            print('here')
             if(len(self.input_command) != 0):
                 #print(self.input_command)
                 #input_statement = ' '.join(i for i in self.input_command)
@@ -46,37 +48,15 @@ if __name__=='__main__':
                 print('not valid input, please refer help by running todo help add')
 
         def call_list(self, *args):
-            def call_check_by_due_date():
-                check_by_due_date(inputs)
-
-            def call_check_project_context():
-                check_project_context(inputs)
-
-            def no_function():
-                raise AnyPossibleError
-
-            def list_one_argument():
-               """ calling_func = {'all': todo.list_todo,
-                                'overdue': todo.list_by_overdue}
-                call_method = calling_func.get(
-                    inputs[1], call_check_project_context)
-                call_method()"""
                 #calling_func_dict=defaultdict(lambda:1)
+            list_choices={   'all':todo.list_todo\
+                            ,'by project':todo.list_by_project\
+                            ,'by context':todo.list_by_context\
+                            ,'overdue':todo.list_by_overdue,\
+                            }
+            result_list_function=list_choices.get(self.input_command,UI.call_check_project_context)
+            result_list_function()
 
-
-
-
-            def list_two_argument():
-                calling_func = {'by project': todo.list_by_project,
-                                'by context': todo.list_by_context}
-                call_method = calling_func.get(
-                    inputs[1]+' '+inputs[2], call_check_by_due_date)
-                call_method()
-
-            input_len = {0: no_function, 1: list_one_argument,
-                            2: list_two_argument, 3: list_two_argument}
-            result_method = input_len.get(len(inputs[1:]), default)
-            result_method()
 
         def call_complete(self):
             if(todo.check_valid_input(self.input_command)):
@@ -91,7 +71,28 @@ if __name__=='__main__':
             else:
                 print('\nElement not present in the list, please insert valid entry\
                     \nrun todo help del for more\n')
-             
+        
+        def call_check_project_context(self):
+                if(self.input_command.split(' ')[0]=='due'):
+                    if(len(re.findall('(today|tomorrow|[\d]{1,2}\s[jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})',self.input_command))>0):
+                        date_search=re.findall('(today|tomorrow|[\d]{1,2}\s[jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})',self.input_command)[0]
+                        todo.list_by_duedate(date_search)
+                    else:
+                        print('not a valid choice')
+                else:
+                    value_type,check_result=check_project_context(self.input_command)
+                    if(check_result=='False'):
+                        print('couldn\'t find any thing like this')
+                    else:
+                        if(value_type=='project' and todo.check_valid_project_name(check_result)):
+                            print('come here')
+                            todo.list_by_project_name(check_result)
+                        elif(value_type=='context' and todo.check_valid_context_name(check_result)):
+                            print('here bro')
+                            todo.list_by_context_name(check_result)
+                        else:
+                            print('No such project/context/option exist, run todo help list for more')
+
         def call_command_help(self):
             help_dict=defaultdict(lambda: help_guide)
             help_dict['add']=add_help
@@ -108,7 +109,7 @@ if __name__=='__main__':
         readdata = read_todo_file()
         todo = Todo(readdata)
         choice=defaultdict(lambda:UI.call_help)
-        choice['[]']=UI.call_help
+        #choice['[]']=UI.call_help
         choice['a']=UI.call_add
         choice['d']=UI.call_delete
         choice['c']=UI.call_complete
@@ -116,5 +117,4 @@ if __name__=='__main__':
         choice['help']=UI.call_command_help
         choice[inputs[0]]()
     else:
-        pass
         print(help_guide)

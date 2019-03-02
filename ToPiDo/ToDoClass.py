@@ -88,6 +88,8 @@ class Todo():
     def list_by_project_name(self, project_name):
         """Displays records for a particular project"""
         avail_projects = get_project_names(self.items_list)
+        print(avail_projects)
+        print(project_name)
         projects = []
         if project_name.lower() not in avail_projects:
             print('project not present, try again')
@@ -99,6 +101,7 @@ class Todo():
             display_todo(projects)
 
     def list_by_duedate(self, due_dates):
+        due_dates=[items for items in due_dates.split(' ')]
         """Display the records based on a due date"""
         if(check_date(due_dates) != 'no error'):
             print(check_date(due_dates))
@@ -197,6 +200,38 @@ class Todo():
                     return False
             else:
                 return False
+    
+    def check_valid_project_name(self,input_val):
+        """Get whether the given project name is valid or not"""
+        projects = get_project_names(self.items_list)
+        print(projects)
+        if input_val.lower() not in projects:
+            return False
+        else:
+            return True
+
+    def check_valid_context_name(self,input_val):
+        """Check if the context given to search is valid or not"""
+        avail_contexts = []
+        final_context_avail = []
+        for item in self.items_list:
+            avail_contexts.append(item.context) #collect all contexts
+        for item in avail_contexts:
+            contexts = item.split('|') #split ones with multiple contexts
+            for context in contexts:
+                final_context_avail.append(context)
+        final_context_avail = set(final_context_avail) #keep single entries
+        if(input_val.lower() not in final_context_avail):
+            return False
+        else:
+            return True
+
+
+
+
+
+
+
 
 
 def display_todo(args):
@@ -322,54 +357,29 @@ def check_date(args):
 
 
 
-def check_valid_project_name(input_val):
-    """Get whether the given project name is valid or not"""
-    projects = get_project_names(readdata)
-    if input_val.lower() not in projects:
-        return False
-    else:
-        return True
 
-def check_valid_context_name(input_val):
-    """Check if the context given to search is valid or not"""
-    avail_contexts = []
-    final_context_avail = []
-    for item in readdata:
-        avail_contexts.append(item.context)
-    for item in avail_contexts:
-        contexts = item.split('|')
-        for context in contexts:
-            final_context_avail.append(context)
-    final_context_avail = set(final_context_avail)
-    if(input_val.lower() not in final_context_avail):
-        return False
-    else:
-        return True
 
 def default():
         print('not applicable choice, try again')
 
-def check_project_context(inputs):
+def check_project_context(inputstmt):
     """Check if the given input can be a project name or a context"""
-    FirstChar = re.findall('[@]', inputs[1])
-    if(len(FirstChar) == 1 and inputs[1].index('@') == 0):
-        context_name = inputs[1][1:]
-        if(check_valid_context_name(context_name)):
-            todo.list_by_context_name(context_name)
-        else:
-            print('Context not found, try again')
+    FirstChar = re.findall('[@]', inputstmt)
+    if(len(FirstChar) == 1 and inputstmt.index('@') == 0):
+        context_name = inputstmt[1:]
+        return 'context',context_name
     else:
-        FirstChar=re.findall('[+]', inputs[1])
-        if(len(FirstChar) == 1 and inputs[1].index('+') == 0):
-            project_name = inputs[1][1:]
-            if(check_valid_project_name(project_name)):
-                todo.list_by_project_name(project_name)
-            else:
-                print('Project Not found, try again')
+        FirstChar=re.findall('[+]', inputstmt)
+        if(len(FirstChar) == 1 and inputstmt.index('+') == 0):
+            project_name = inputstmt[1:]
+            return 'project',project_name
         else:
-            default() 
+            return 'none',False
+
 
 def check_by_due_date(inputs):
+    print(inputs)
+    print(type(inputs))
     """Check for input to call Listing by Due Date"""
     if(inputs[1] == 'due' and len(inputs[1:]) > 1):
         date = inputs[2:]
