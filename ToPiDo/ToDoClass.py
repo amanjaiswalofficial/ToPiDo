@@ -1,6 +1,7 @@
 import csv
 import re
 import datetime
+from dateutil import parser
 from termcolor import colored
 
 class AnyPossibleError(Exception):
@@ -129,29 +130,25 @@ class Todo():
                     print('No todo for given date found')
 
     def list_by_overdue(self):
-        """Displays the records which are due and incomplete"""
-        items_today = []
-        items_tomorrow = []
-        date_dict = {}
-        month_order = []
-        valid_items = []
-        valid_months = ['jan', 'feb', 'mar', 'apr', 'may','jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-        for item in self.items_list:
-            if(item.date == 'today' and item.status == 'incomplete'):
-                    items_today.append(item)
-            elif(item.date == 'tomorrow' and item.status == 'incomplete'):
-                    items_tomorrow.append(item)
-        for month_name in valid_months:
-            count = 0
-            tempdate = []
-            for item in self.items_list:
-                date = item.date.split(' ')
-                if(len(date) > 1):
-                    if(date[1] == month_name):
-                        valid_items.append(item)
-        display_todo(items_today)
-        display_todo(items_tomorrow)
-        display_todo(valid_items)
+        items_dict={'pending':[],'today':[],'tomorrow':[],'other':[]}
+        for items in self.items_list:
+            if(items.status=='incomplete'):
+                if items.date not in ['today','tomorrow']:
+                    now=datetime.datetime.now().date()
+                    item_due_date=datetime.datetime.strptime(items.date+' 2019','%d %b %Y').date()
+                    if(item_due_date<now):
+                        items_dict['pending'].append(items)
+                    else:
+                        items_dict['other'].append(items)
+                else:
+                    if items.date=='today':
+                        items_dict['today'].append(items)
+                    elif items.date=='tomorrow':
+                        items_dict['tomorrow'].append(items)
+        for key,val in items_dict.items():
+            display_todo(val)
+
+            
 
     def list_by_context(self):
         """Display all the todo Items on basis of context"""
@@ -242,11 +239,12 @@ def display_todo(args):
     for display_item in args:
         if(display_item.status == 'complete'):
             display_item.symbol = '[x]'
+            display_item.symbol = colored(display_item.symbol,'green')
         elif(display_item.status == 'incomplete'):
             display_item.symbol = '[ ]'
-        #colored_date=colored(display_item.serial_num,'yellow')
-        print('{0:<10}{1:10}{2:20}{3:20}'.format(display_item.serial_num, display_item.symbol,
-                                                        display_item.date, display_item.message))
+            display_item.symbol = colored(display_item.symbol,'white')
+        print('{0:<10}{1:20}{2:30}{3:20}'.format(display_item.serial_num, display_item.symbol,
+                                                        display_item.date, colored(display_item.message,'blue')))
 
 def write_todo_file(args):
     """Write all the items to the file, based on the input that is a list of items"""
@@ -329,7 +327,6 @@ def check_date(args):
     """Checks the date to see if it's valid or not"""
     due_date = args
     valid_day = ['today', 'tom', 'tomorrow']
-    duedate_current = ''
     if((len(due_date) == 1) and (due_date[0] in valid_day)):
         return 'no error'
     elif(len(due_date) == 2):
@@ -341,7 +338,6 @@ def check_date(args):
             day = int(due_date[0])
         else:
             return 'Not correct format, please enter due-date in form of dd mon'
-            flag = False
         month = str(due_date[1].lower())
         if(day in valid_days and month in valid_months):
             if(month == 'feb'):
@@ -349,7 +345,6 @@ def check_date(args):
                     return 'no error'
                 else:
                     return 'The day doesn\'t exist in feb'
-                    flag = False
             else:
                 return 'no error'
         else:
@@ -358,12 +353,6 @@ def check_date(args):
     else:
         return 'Not a valid entry, please insert in the form of dd mon'
 
-
-
-
-
-def default():
-        print('not applicable choice, try again')
 
 def check_project_context(inputstmt):
     """Check if the given input can be a project name or a context"""
@@ -379,17 +368,6 @@ def check_project_context(inputstmt):
         else:
             return 'none',False
 
-
-def check_by_due_date(inputs):
-    print(inputs)
-    print(type(inputs))
-    """Check for input to call Listing by Due Date"""
-    if(inputs[1] == 'due' and len(inputs[1:]) > 1):
-        date = inputs[2:]
-        todo.list_by_duedate(date)
-    else:
-        print('not an applicable choice, try again')
-
 def get_context(inpt_statement):
     """Extracts the context out of the provided message"""
     context_strings = re.findall('[@][^\s]+', inpt_statement)
@@ -401,7 +379,6 @@ def get_context(inpt_statement):
         if(len(contexts) >= 1):
             context = '|'.join(context for context in contexts)
     else:
-        print('no context found')
         context = 'none'
     return context
 
@@ -427,7 +404,6 @@ def get_duedate(inpt_stmt):
     message=inpt_stmt
 
     if(inpt_stmt.find('due') > 0):
-        print('inside')
         due_indexes = []
         for words in range(len(input_message)):
             if input_message[words] == 'due':

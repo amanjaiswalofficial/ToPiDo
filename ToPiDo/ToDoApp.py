@@ -35,26 +35,26 @@ if __name__=='__main__':
             self.input_args =inputs
         
         def call_help(self):
-                """Displays the help guide"""
                 print(help_guide)
         
 
         def call_add(self):
-            """Calls the add todo method from the ToDoClass"""
+            print('here')
             if(len(self.input_command) != 0):
+                #print(self.input_command)
+                #input_statement = ' '.join(i for i in self.input_command)
                 todo.add_todo(self.input_command)
             else:
                 print('not valid input, please refer help by running todo help add')
 
         def call_list(self, *args):
-            """Finds the appropriate list option and executes it"""
+                #calling_func_dict=defaultdict(lambda:1)
             list_choices={   'all':todo.list_todo\
                             ,'by project':todo.list_by_project\
                             ,'by context':todo.list_by_context\
                             ,'overdue':todo.list_by_overdue,\
                             }
-            result_list_function=list_choices.get(\
-                self.input_command,UserInteraction.call_check_project_context)
+            result_list_function=list_choices.get(self.input_command,UI.call_check_project_context)
             result_list_function()
 
 
@@ -72,19 +72,14 @@ if __name__=='__main__':
                 print('\nElement not present in the list, please insert valid entry\
                     \nrun todo help del for more\n')
         
-        def check_valid_due_date(self):
-            if(len(re.findall('(today|tomorrow|[\d]{1,2}\
-                \s[jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})',\
-                self.input_command))>0):
-                        date_search=re.findall('(today|tomorrow|[\d]{1,2}\s\
-                            [jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})',self.input_command)[0]
-                        todo.list_by_duedate(date_search)
-            else:
-                print('not a valid choice, try with a different due [value]')
-
         def call_check_project_context(self):
                 if(self.input_command.split(' ')[0]=='due'): #check if it's for a day/date
-                    UserInteraction.check_valid_due_date(self) 
+                    search_str='(today|tomorrow|[\d]{1,2}\s[jan,feb,mar\,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})'
+                    if(len(re.findall(search_str,self.input_command))>0):
+                        date_search=re.findall(search_str,self.input_command)[0]
+                        todo.list_by_duedate(date_search)
+                    else:
+                        print('not a valid choice, try with a different due [value]')
                 else: #check for project or context
                     value_type,check_result=check_project_context(self.input_command)
                     if(check_result=='False'):
@@ -97,8 +92,6 @@ if __name__=='__main__':
                         else:
                             print('No such project/context/option exist, run todo help list for more')
 
-    
-            
         def call_command_help(self):
             help_dict=defaultdict(lambda: help_guide)
             help_dict['add']=add_help
