@@ -40,24 +40,27 @@ class Todo():
         print('\nTask added successfully\n')
 
     def complete_todo(self, serial_number):
+        
         """Completes a todo after taking it's serial number as input"""
-        serial_num = serial_number[0]
+        serial_num = int(serial_number)
         items = []
         for item in self.items_list:
             if(item.serial_num == int(serial_num)):
                 item.status = 'complete'
             items.append(item)
-        write_todo_file(items)
         print('Task marked complete')
+        write_todo_file(items)
 
     def delete_todo(self, serial_number):
         """Deletes a todo item from the list using the given serial number"""
-        serial_num = int(serial_number[0])
+        serial_num = int(serial_number)
         items = []
         for item in self.items_list:
             if(item.serial_num != int(serial_num)):
                 items.append(item)
+        print('Task deleted')
         write_todo_file(items)
+    
 
     def list_by_project(self):
         """Lists all the todo Items on the basis of project names"""
@@ -88,8 +91,6 @@ class Todo():
     def list_by_project_name(self, project_name):
         """Displays records for a particular project"""
         avail_projects = get_project_names(self.items_list)
-        print(avail_projects)
-        print(project_name)
         projects = []
         if project_name.lower() not in avail_projects:
             print('project not present, try again')
@@ -185,6 +186,7 @@ class Todo():
             pass
     
     def check_valid_input(self,input_val):
+        input_val=[input_val]
         """To see if provided input for delete or complete is valid or not"""
         if(len(input_val) > 1):
             return False
@@ -204,9 +206,10 @@ class Todo():
     def check_valid_project_name(self,input_val):
         """Get whether the given project name is valid or not"""
         projects = get_project_names(self.items_list)
-        print(projects)
         if input_val.lower() not in projects:
+            print('\nChoose one of the avaliable projects: '+str(projects)+'\n')
             return False
+            
         else:
             return True
 
