@@ -1,11 +1,8 @@
 import csv
 import re
 import datetime
-from dateutil import parser
 from termcolor import colored
 
-class AnyPossibleError(Exception):
-    pass
 
 
 class Todoitems():
@@ -30,7 +27,6 @@ class Todo():
     def list_todo(self):
         """Displays all the todo items without any filtering"""
         display_todo(self.items_list)
-
 
     def add_todo(self, inpt_stmt):
         """adds the input to the to do list"""
@@ -62,7 +58,14 @@ class Todo():
         print('Task deleted')
         write_todo_file(items)
     
-
+    def extend_todo(self,serial_num,new_due_date):
+        items=[]
+        for item in self.items_list:
+            if(item.serial_num==int(serial_num)):
+                item.date=new_due_date
+            items.append(item)
+        write_todo_file(items)
+    
     def list_by_project(self):
         """Lists all the todo Items on the basis of project names"""
         avail_project = get_project_names(self.items_list)
@@ -148,8 +151,6 @@ class Todo():
         for key,val in items_dict.items():
             display_todo(val)
 
-            
-
     def list_by_context(self):
         """Display all the todo Items on basis of context"""
         contexts = []
@@ -174,13 +175,6 @@ class Todo():
             if(context_name.lower() in item.context.split('|')):
                 display_items.append(item)
         display_todo(display_items)
-
-    def extend_todo(self,serial_num,new_due_date):
-        items=[]
-        for item in self.items_list:
-            if(item.serial_num==int(serial_num)):
-                item
-            pass
     
     def check_valid_input(self,input_val):
         input_val=[input_val]
@@ -226,13 +220,26 @@ class Todo():
         else:
             return True
 
+    def check_valid_extend(self,input_statement):  
+        try:    
+            input_command=input_statement.split('set due')
+            if(len(input_command)>1):
+                serial_number_string=input_command[0]
+                new_due_date_string=str(input_command[1:])
+                serial_number=0
+                search_str='(tomorrow|(\d{2})\s[jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})'
+                new_due_date=(re.findall(search_str,new_due_date_string)[0][0])
+                if(len(re.findall('[\d]{2}',serial_number_string))>0 and \
+                    re.search(search_str,new_due_date_string)!=None and check_date(new_due_date.split(' '))):
 
-
-
-
-
-
-
+                        serial_number=int(re.findall('[\d]{2}',serial_number_string)[0])
+                        return True,serial_number,new_due_date
+                else:
+                    raise Exception
+            else:
+                raise Exception
+        except:
+                return False,None,None
 
 def display_todo(args):
     """To display all the todo items given in the input in form of a list""" 
@@ -352,7 +359,6 @@ def check_date(args):
 
     else:
         return 'Not a valid entry, please insert in the form of dd mon'
-
 
 def check_project_context(inputstmt):
     """Check if the given input can be a project name or a context"""

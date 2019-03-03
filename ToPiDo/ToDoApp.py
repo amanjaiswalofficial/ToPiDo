@@ -11,7 +11,7 @@ help_guide='\nPlease refer to the following commands\
             \nd: delete an item from the todolist (for help run tododeleteh)\n'
 add_help='\nPlease try input in the following format for a successful entry\
             \na +(project name or names if any) message @(context if any) \
-due due_date (today/tomorrow or any valid DD MON)\
+                due due_date (today/tomorrow or any valid DD MON)\
             \nEx-a +project_name meet with @meghan due 21 jun\n'
 delete_help='\nPlease try the input in the following format for a success entry\
             \nd valid_todo_serial_number\
@@ -45,7 +45,7 @@ if __name__=='__main__':
                 #input_statement = ' '.join(i for i in self.input_command)
                 todo.add_todo(self.input_command)
             else:
-                print('not valid input, please refer help by running todo help add')
+                print('\nnot valid input, please refer help by running todo help add\n')
 
         def call_list(self, *args):
                 #calling_func_dict=defaultdict(lambda:1)
@@ -72,6 +72,14 @@ if __name__=='__main__':
                 print('\nElement not present in the list, please insert valid entry\
                     \nrun todo help del for more\n')
         
+        def call_extend(self):
+            valid_flag,serial_number,new_date=todo.check_valid_extend(self.input_command)
+            if(valid_flag):
+                todo.extend_todo(serial_number,new_date)
+            else:
+                print('\nIncorrect details, make sure you give right serial_number\
+ and date, run todo help ext for more\n')
+
         def call_check_project_context(self):
                 if(self.input_command.split(' ')[0]=='due'): #check if it's for a day/date
                     search_str='(today|tomorrow|[\d]{1,2}\s[jan,feb,mar\,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})'
@@ -113,6 +121,7 @@ if __name__=='__main__':
         choice['d']=UI.call_delete
         choice['c']=UI.call_complete
         choice['l']=UI.call_list
+        choice['e']=UI.call_extend
         choice['help']=UI.call_command_help
         choice[inputs[0]]()
     else:
