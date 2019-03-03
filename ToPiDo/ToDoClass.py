@@ -4,7 +4,6 @@ import datetime
 from termcolor import colored
 
 
-
 class Todoitems():
     serial_num = 0
     status = ''
@@ -31,13 +30,13 @@ class Todo():
     def add_todo(self, inpt_stmt):
         """adds the input to the to do list"""
         duedate_current, message, projects, context = add_todo_parser(inpt_stmt)
-        todo = Todoitems(get_todo_count(), 'incomplete',duedate_current, message, str(projects), str(context))
+        todo = Todoitems(get_todo_count(), 'incomplete',duedate_current, message,\
+            str(projects), str(context))
         self.items_list.append(todo)
         write_todo_file(self.items_list)
         print('\nTask added successfully\n')
 
-    def complete_todo(self, serial_number):
-        
+    def complete_todo(self, serial_number):  
         """Completes a todo after taking it's serial number as input"""
         serial_num = int(serial_number)
         items = []
@@ -64,6 +63,7 @@ class Todo():
             if(item.serial_num==int(serial_num)):
                 item.date=new_due_date
             items.append(item)
+        print('Task Extended successfully')
         write_todo_file(items)
     
     def list_by_project(self):
@@ -78,17 +78,12 @@ class Todo():
                     temp_list.append(item)
                 display_todo(temp_list)
 
-    def list_by_status(self):
-        """displays all the todo items ordering the completed and then the incomplete"""
-        avail_status_complete = []
+    def list_pending(self):
+        """displays all the todo items that are incomplete"""
         avail_status_incomplete = []
         for item in self.items_list:
-            if(item.status == 'complete'):
-                avail_status_complete.append(item)
-            else:
+            if(item.status != 'complete'):
                 avail_status_incomplete.append(item)
-        print('Complete')
-        display_todo(avail_status_complete)
         print('Incomplete')
         display_todo(avail_status_incomplete)
 
@@ -105,9 +100,9 @@ class Todo():
             print(project_name)
             display_todo(projects)
 
-    def list_by_duedate(self, due_dates):
-        due_dates=[items for items in due_dates.split(' ')]
+    def list_by_duedate(self, due_dates):   
         """Display the records based on a due date"""
+        due_dates=[items for items in due_dates.split(' ')]
         if(check_date(due_dates) != 'no error'):
             print(check_date(due_dates))
         else:
@@ -133,6 +128,7 @@ class Todo():
                     print('No todo for given date found')
 
     def list_by_overdue(self):
+        """Display the items which are overdue in order of dates"""
         items_dict={'pending':[],'today':[],'tomorrow':[],'other':[]}
         for items in self.items_list:
             if(items.status=='incomplete'):
@@ -177,8 +173,8 @@ class Todo():
         display_todo(display_items)
 
     def archive_todo(self,serial_num):
+        """Take the todo item and write it into archived file"""
         items=[]
-        print(type(serial_num))
         for item in self.items_list:
             if(item.serial_num==serial_num):
                 #items.append(item)
@@ -188,8 +184,8 @@ class Todo():
         write_todo_file(items)
             
     def check_valid_input(self,input_val):
-        input_val=[input_val]
         """To see if provided input for delete or complete is valid or not"""
+        input_val=[input_val]
         if(len(input_val) > 1):
             return False
         else:
@@ -232,6 +228,7 @@ class Todo():
             return True
 
     def check_valid_extend(self,input_statement):  
+        """Check whether the entry made for extend of an item is valid or not"""
         try:    
             input_command=input_statement.split('set due')
             if(len(input_command)>1):
@@ -254,17 +251,28 @@ class Todo():
 
 def display_todo(args):
     """To display all the todo items given in the input in form of a list""" 
+    now=datetime.datetime.now().date()
+
     for display_item in args:
+        task_pending_flag=False
+        if(display_item.date not in ['today','tomorrow']):
+            due_date=datetime.datetime.strptime(display_item.date+' 2019','%d %b %Y').date()
+            if(now>due_date):
+                task_pending_flag=True
         if(display_item.status == 'complete'):
             display_item.symbol = '[x]'
             display_item.symbol = colored(display_item.symbol,'green')
         elif(display_item.status == 'incomplete'):
             display_item.symbol = '[ ]'
-            display_item.symbol = colored(display_item.symbol,'white')
+            if(task_pending_flag):
+                display_item.symbol = colored(display_item.symbol,'red')
+            else:
+                display_item.symbol = colored(display_item.symbol,'white')
         print('{0:<10}{1:20}{2:30}{3:20}'.format(display_item.serial_num, display_item.symbol,
                                                         display_item.date, colored(display_item.message,'blue')))
 
 def display_archived():
+    """Display the contents of the archived file"""
     with open('archive.csv') as file:
         today,tomorrow=get_today_tomorrow()
         csvreader = csv.DictReader(file, delimiter=',')
@@ -281,6 +289,7 @@ def display_archived():
     display_todo(items)
 
 def write_archive_file(args):
+    """Write an item from the current todo into the archived area"""
     item=args
     today,tomorrow=get_today_tomorrow()
     with open('archive.csv', 'a') as file:
