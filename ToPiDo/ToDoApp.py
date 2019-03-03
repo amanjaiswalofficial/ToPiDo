@@ -39,7 +39,6 @@ if __name__=='__main__':
         
 
         def call_add(self):
-            print('here')
             if(len(self.input_command) != 0):
                 #print(self.input_command)
                 #input_statement = ' '.join(i for i in self.input_command)
@@ -52,7 +51,8 @@ if __name__=='__main__':
             list_choices={   'all':todo.list_todo\
                             ,'by project':todo.list_by_project\
                             ,'by context':todo.list_by_context\
-                            ,'overdue':todo.list_by_overdue,\
+                            ,'overdue':todo.list_by_overdue\
+                            ,'archived':display_archived    
                             }
             result_list_function=list_choices.get(self.input_command,UI.call_check_project_context)
             result_list_function()
@@ -62,16 +62,22 @@ if __name__=='__main__':
             if(todo.check_valid_input(self.input_command)):
                 todo.complete_todo(self.input_command)
             else:
-                print('\nElement not present in the list, please insert valid entry\
+                print('\nElement not present in the list, please insert valid serial number\
                     \nrun todo help add for more\n')
 
         def call_delete(self):
             if(todo.check_valid_input(self.input_command)):
                 todo.delete_todo(self.input_command)
             else:
-                print('\nElement not present in the list, please insert valid entry\
+                print('\nElement not present in the list, please insert valid serial number\
                     \nrun todo help del for more\n')
         
+        def call_archive(self):
+            if(todo.check_valid_input(self.input_command)):
+                todo.archive_todo(int(self.input_command))
+            else:
+                print('\nElement not present in the list, please insert valid serial number\
+                    \nrun todo help arc for more\n')
         def call_extend(self):
             valid_flag,serial_number,new_date=todo.check_valid_extend(self.input_command)
             if(valid_flag):
@@ -122,6 +128,7 @@ if __name__=='__main__':
         choice['c']=UI.call_complete
         choice['l']=UI.call_list
         choice['e']=UI.call_extend
+        choice['ar']=UI.call_archive
         choice['help']=UI.call_command_help
         choice[inputs[0]]()
     else:

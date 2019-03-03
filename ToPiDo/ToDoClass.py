@@ -175,7 +175,18 @@ class Todo():
             if(context_name.lower() in item.context.split('|')):
                 display_items.append(item)
         display_todo(display_items)
-    
+
+    def archive_todo(self,serial_num):
+        items=[]
+        print(type(serial_num))
+        for item in self.items_list:
+            if(item.serial_num==serial_num):
+                #items.append(item)
+                write_archive_file(item)
+            else:
+                items.append(item)
+        write_todo_file(items)
+            
     def check_valid_input(self,input_val):
         input_val=[input_val]
         """To see if provided input for delete or complete is valid or not"""
@@ -252,6 +263,36 @@ def display_todo(args):
             display_item.symbol = colored(display_item.symbol,'white')
         print('{0:<10}{1:20}{2:30}{3:20}'.format(display_item.serial_num, display_item.symbol,
                                                         display_item.date, colored(display_item.message,'blue')))
+
+def display_archived():
+    with open('archive.csv') as file:
+        today,tomorrow=get_today_tomorrow()
+        csvreader = csv.DictReader(file, delimiter=',')
+        items = []
+        for row in csvreader:
+            if(row['date']==today):
+                row['date']='today'
+            elif(row['date']==tomorrow):
+                row['date']='tomorrow'
+            #colored_date=colored(display_item.serial_num,'yellow')
+            item = Todoitems(row['serial_num'], row['status'], row['date'],
+                            row['message'], row['project'], row['context'])
+            items.append(item)
+    display_todo(items)
+
+def write_archive_file(args):
+    item=args
+    today,tomorrow=get_today_tomorrow()
+    with open('archive.csv', 'a') as file:
+        field_names = ['serial_num', 'status',
+                    'date', 'project', 'context', 'message']
+        csvwriter = csv.DictWriter(file, fieldnames=field_names)
+        if(item.date=='today'):
+            item.date=today
+        elif(item.date=='tomorrow' or item.date=='tom'):
+            item.date=tomorrow
+        csvwriter.writerow({'serial_num': item.serial_num, 'status': item.status, 'date': item.date.lower(),
+                            'project': item.project.lower(), 'context': item.context.lower(), 'message': item.message})
 
 def write_todo_file(args):
     """Write all the items to the file, based on the input that is a list of items"""
