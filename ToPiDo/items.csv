@@ -6,7 +6,16 @@ serial_num,status,date,project,context,message
 6,complete,7 mar,android,none,+Android present the functionality
 7,incomplete,11 mar,web,rishabh,+Web discuss with @Rishabh
 8,complete,1 mar,animation,kishan,+Animation review the changes made by @Kishan
-10,incomplete,25 apr,android|others,none,+Android +Others plan the week ahead
+10,incomplete,25 dec,android|others,none,+Android +Others plan the week ahead
 11,incomplete,2 mar,web,ishita,+Web complete remaining modules discuss with @Ishita
 12,complete,17 aug,web|ar,none,+Web +AR Download Updates
 13,incomplete,4 mar,personal,none,Get Household chores done
+14,incomplete,5 mar,devops,none,+Devops do this
+15,complete,1 mar,social,cto,+Social have lunch with @CTO
+16,incomplete,22 aug,personal,none,get doors fixed
+17,incomplete,22 oct,personal,ravi,meet @Ravi shastri
+18,incomplete,22 sep,ar|devops,abhinay,+AR meet @abhinay for +Devops project
+19,incomplete,12 feb,web,abhinay|rishabh,+Web meet new clients @abhinay and @rishabh
+20,complete,5 mar,web,abhinay|ron,+Web meet new clients @abhinay and @ron
+21,incomplete,4 mar,devops|android,aman,+Devops +Android see the presentation @aman
+22,complete,4 mar,personal,aman,+ Devops + Android see the presentation @aman

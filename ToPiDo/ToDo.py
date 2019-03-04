@@ -5,19 +5,13 @@ from termcolor import colored
 
 
 class Todoitems():
+    """Every individual item and it's attributes from the todo file"""
     serial_num = 0
     status = ''
     date = ''
     message = ''
 
-    def __init__(
-            self,
-            serial_num,
-            status,
-            date,
-            message,
-            project='Default project',
-            context='sample context'):
+    def __init__(self, serial_num, status, date, message, project='Default project', context='sample context'):
         self.serial_num = int(serial_num)
         self.status = status
         self.date = date
@@ -27,6 +21,7 @@ class Todoitems():
 
 
 class Todo():
+    """Contains methods for various operations on the todo list"""
     def __init__(self, items_list):
         self.items_list = items_list
 
@@ -36,20 +31,17 @@ class Todo():
 
     def add_todo(self, inpt_stmt):
         """adds the input to the to do list"""
-        duedate_current, message, projects, context = add_todo_parser(
-            inpt_stmt)
-        todo = Todoitems(
-            get_todo_count(),
-            'incomplete',
-            duedate_current,
-            message,
-            str(projects),
-            str(context))
-        self.items_list.append(todo)
-        write_todo_file(self.items_list)
-        print('\nTask added successfully\n')
+        duedate_current, message, projects, context = add_todo_parser(inpt_stmt)
+        if not message:
+            print('Not valid message/date,try again and please run todo help add for more')
+        else:
+            todo = Todoitems(get_todo_count(), 'incomplete',duedate_current, message,\
+                str(projects), str(context))
+            self.items_list.append(todo)
+            write_todo_file(self.items_list)
+            print('\nTask added successfully\n')
 
-    def complete_todo(self, serial_number):
+    def complete_todo(self, serial_number):  
         """Completes a todo after taking it's serial number as input"""
         serial_num = int(serial_number)
         items = []
@@ -69,16 +61,16 @@ class Todo():
                 items.append(item)
         print('Task deleted')
         write_todo_file(items)
-
-    def extend_todo(self, serial_num, new_due_date):
-        items = []
+    
+    def extend_todo(self,serial_num,new_due_date):
+        items=[]
         for item in self.items_list:
-            if(item.serial_num == int(serial_num)):
-                item.date = new_due_date
+            if(item.serial_num==int(serial_num)):
+                item.date=new_due_date
             items.append(item)
         print('Task Extended successfully')
         write_todo_file(items)
-
+    
     def list_by_project(self):
         """Lists all the todo Items on the basis of project names"""
         avail_project = get_project_names(self.items_list)
@@ -113,9 +105,9 @@ class Todo():
             print(project_name)
             display_todo(projects)
 
-    def list_by_duedate(self, due_dates):
+    def list_by_duedate(self, due_dates):   
         """Display the records based on a due date"""
-        due_dates = [items for items in due_dates.split(' ')]
+        due_dates=[items for items in due_dates.split(' ')]
         if(check_date(due_dates) != 'no error'):
             print(check_date(due_dates))
         else:
@@ -142,23 +134,22 @@ class Todo():
 
     def list_by_overdue(self):
         """Display the items which are overdue in order of dates"""
-        items_dict = {'pending': [], 'today': [], 'tomorrow': [], 'other': []}
+        items_dict={'pending':[],'today':[],'tomorrow':[],'other':[]}
         for items in self.items_list:
-            if(items.status == 'incomplete'):
-                if items.date not in ['today', 'tomorrow']:
-                    now = datetime.datetime.now().date()
-                    item_due_date = datetime.datetime.strptime(
-                        items.date + ' 2019', '%d %b %Y').date()
-                    if(item_due_date < now):
+            if(items.status=='incomplete'):
+                if items.date not in ['today','tomorrow']:
+                    now=datetime.datetime.now().date()
+                    item_due_date=datetime.datetime.strptime(items.date+' 2019','%d %b %Y').date()
+                    if(item_due_date<now):
                         items_dict['pending'].append(items)
                     else:
                         items_dict['other'].append(items)
                 else:
-                    if items.date == 'today':
+                    if items.date=='today':
                         items_dict['today'].append(items)
-                    elif items.date == 'tomorrow':
+                    elif items.date=='tomorrow':
                         items_dict['tomorrow'].append(items)
-        for key, val in items_dict.items():
+        for key,val in items_dict.items():
             display_todo(val)
 
     def list_by_context(self):
@@ -179,27 +170,27 @@ class Todo():
 
     def list_by_context_name(self, context_name):
         """Display the ToDo items based on a context"""
-        display_items = []
+        display_items=[]
         print(context_name)
         for item in self.items_list:
             if(context_name.lower() in item.context.split('|')):
                 display_items.append(item)
         display_todo(display_items)
 
-    def archive_todo(self, serial_num):
+    def archive_todo(self,serial_num):
         """Take the todo item and write it into archived file"""
-        items = []
+        items=[]
         for item in self.items_list:
-            if(item.serial_num == serial_num):
-                # items.append(item)
+            if(item.serial_num==serial_num):
+                #items.append(item)
                 write_archive_file(item)
             else:
                 items.append(item)
         write_todo_file(items)
-
-    def check_valid_input(self, input_val):
+            
+    def check_valid_input(self,input_val):
         """To see if provided input for delete or complete is valid or not"""
-        input_val = [input_val]
+        input_val=[input_val]
         if(len(input_val) > 1):
             return False
         else:
@@ -214,185 +205,154 @@ class Todo():
                     return False
             else:
                 return False
-
-    def check_valid_project_name(self, input_val):
+    
+    def check_valid_project_name(self,input_val):
         """Get whether the given project name is valid or not"""
         projects = get_project_names(self.items_list)
         if input_val.lower() not in projects:
-            print(
-                '\nChoose one of the avaliable projects: ' +
-                str(projects) +
-                '\n')
+            print('\nChoose one of the avaliable projects: '+str(projects)+'\n')
             return False
-
+            
         else:
             return True
 
-    def check_valid_context_name(self, input_val):
+    def check_valid_context_name(self,input_val):
         """Check if the context given to search is valid or not"""
         avail_contexts = []
         final_context_avail = []
         for item in self.items_list:
-            avail_contexts.append(item.context)  # collect all contexts
+            avail_contexts.append(item.context) #collect all contexts
         for item in avail_contexts:
-            contexts = item.split('|')  # split ones with multiple contexts
+            contexts = item.split('|') #split ones with multiple contexts
             for context in contexts:
                 final_context_avail.append(context)
-        final_context_avail = set(final_context_avail)  # keep single entries
+        final_context_avail = set(final_context_avail) #keep single entries
         if(input_val.lower() not in final_context_avail):
             return False
         else:
             return True
 
-    def check_valid_extend(self, input_statement):
+    def check_valid_extend(self,input_statement):  
         """Check whether the entry made for extend of an item is valid or not"""
-        try:
-            input_command = input_statement.split('set due')
-            if(len(input_command) > 1):
-                serial_number_string = input_command[0]
-                new_due_date_string = str(input_command[1:])
-                serial_number = 0
-                search_str = r'(tomorrow|(\d{2})\s[jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})'
-                new_due_date = (
-                    re.findall(
-                        search_str,
-                        new_due_date_string)[0][0])
-                if(len(re.findall('[\d]{2}', serial_number_string)) > 0 and
-                        re.search(search_str, new_due_date_string) is not None and check_date(new_due_date.split(' '))):
+        try:    
+            input_command=input_statement.split('set due')
+            if(len(input_command)>1):
+                serial_number_string=input_command[0]
+                new_due_date_string=str(input_command[1:])
+                serial_number=0
+                search_str='(tomorrow|(\d{2})\s[jan,feb,mar,apr,may,jun,jul,aug,sep,oct,nov,dec]{3})'
+                new_due_date=(re.findall(search_str,new_due_date_string)[0][0])
+                if(len(re.findall('[\d]{2}',serial_number_string))>0 and \
+                    re.search(search_str,new_due_date_string)!=None and check_date(new_due_date.split(' '))):
 
-                    serial_number = int(
-                        re.findall(
-                            r'[\d]{2}',
-                            serial_number_string)[0])
-                    return True, serial_number, new_due_date
+                        serial_number=int(re.findall('[\d]{2}',serial_number_string)[0])
+                        return True,serial_number,new_due_date
                 else:
                     raise Exception
             else:
                 raise Exception
-        except BaseException:
-            return False, None, None
-
+        except:
+                return False,None,None
 
 def display_todo(args):
-    """To display all the todo items given in the input in form of a list"""
-    now = datetime.datetime.now().date()
+    """To display all the todo items given in the input in form of a list""" 
+    now=datetime.datetime.now().date()
 
     for display_item in args:
-        task_pending_flag = False
-        if(display_item.date not in ['today', 'tomorrow']):
-            due_date = datetime.datetime.strptime(
-                display_item.date + ' 2019', '%d %b %Y').date()
-            if(now > due_date):
-                task_pending_flag = True
+        task_pending_flag=False
+        if(display_item.date not in ['today','tomorrow']):
+            due_date=datetime.datetime.strptime(display_item.date+' 2019','%d %b %Y').date()
+            if(now>due_date):
+                task_pending_flag=True
         if(display_item.status == 'complete'):
             display_item.symbol = '[x]'
-            display_item.symbol = colored(display_item.symbol, 'green')
+            display_item.symbol = colored(display_item.symbol,'green')
         elif(display_item.status == 'incomplete'):
             display_item.symbol = '[ ]'
             if(task_pending_flag):
-                display_item.symbol = colored(display_item.symbol, 'red')
+                display_item.symbol = colored(display_item.symbol,'red')
             else:
-                display_item.symbol = colored(display_item.symbol, 'white')
-        print(
-            '{0:<10}{1:20}{2:30}{3:20}'.format(
-                display_item.serial_num,
-                display_item.symbol,
-                display_item.date,
-                colored(
-                    display_item.message,
-                    'blue')))
-
+                display_item.symbol = colored(display_item.symbol,'white')
+        print('{0:<10}{1:20}{2:30}{3:20}'.format(display_item.serial_num, display_item.symbol,
+                                                        display_item.date, colored(display_item.message,'blue')))
 
 def display_archived():
     """Display the contents of the archived file"""
     with open('archive.csv') as file:
-        today, tomorrow = get_today_tomorrow()
+        today,tomorrow=get_today_tomorrow()
         csvreader = csv.DictReader(file, delimiter=',')
         items = []
         for row in csvreader:
-            if(row['date'] == today):
-                row['date'] = 'today'
-            elif(row['date'] == tomorrow):
-                row['date'] = 'tomorrow'
-            # colored_date=colored(display_item.serial_num,'yellow')
+            if(row['date']==today):
+                row['date']='today'
+            elif(row['date']==tomorrow):
+                row['date']='tomorrow'
+            #colored_date=colored(display_item.serial_num,'yellow')
             item = Todoitems(row['serial_num'], row['status'], row['date'],
-                             row['message'], row['project'], row['context'])
+                            row['message'], row['project'], row['context'])
             items.append(item)
     display_todo(items)
 
-
 def write_archive_file(args):
     """Write an item from the current todo into the archived area"""
-    item = args
-    today, tomorrow = get_today_tomorrow()
+    item=args
+    today,tomorrow=get_today_tomorrow()
     with open('archive.csv', 'a') as file:
         field_names = ['serial_num', 'status',
-                       'date', 'project', 'context', 'message']
+                    'date', 'project', 'context', 'message']
         csvwriter = csv.DictWriter(file, fieldnames=field_names)
-        if(item.date == 'today'):
-            item.date = today
-        elif(item.date == 'tomorrow' or item.date == 'tom'):
-            item.date = tomorrow
-        csvwriter.writerow({'serial_num': item.serial_num,
-                            'status': item.status,
-                            'date': item.date.lower(),
-                            'project': item.project.lower(),
-                            'context': item.context.lower(),
-                            'message': item.message})
-
+        if(item.date=='today'):
+            item.date=today
+        elif(item.date=='tomorrow' or item.date=='tom'):
+            item.date=tomorrow
+        csvwriter.writerow({'serial_num': item.serial_num, 'status': item.status, 'date': item.date.lower(),
+                            'project': item.project.lower(), 'context': item.context.lower(), 'message': item.message})
 
 def write_todo_file(args):
     """Write all the items to the file, based on the input that is a list of items"""
-    today, tomorrow = get_today_tomorrow()
+    today,tomorrow=get_today_tomorrow()
     with open('items.csv', 'w') as file:
         field_names = ['serial_num', 'status',
-                       'date', 'project', 'context', 'message']
+                    'date', 'project', 'context', 'message']
         csvwriter = csv.DictWriter(file, fieldnames=field_names)
         csvwriter.writeheader()
         for item in args:
-            if(item.date == 'today'):
-                item.date = today
-            elif(item.date == 'tomorrow' or item.date == 'tom'):
-                item.date = tomorrow
+            if(item.date=='today'):
+                item.date=today
+            elif(item.date=='tomorrow' or item.date=='tom'):
+                item.date=tomorrow
             #print(str(item.serial_num)+' '+item.status+' '+item.date+' '+item.project+' '+item.message)
-            csvwriter.writerow({'serial_num': item.serial_num,
-                                'status': item.status,
-                                'date': item.date.lower(),
-                                'project': item.project.lower(),
-                                'context': item.context.lower(),
-                                'message': item.message})
-
+            csvwriter.writerow({'serial_num': item.serial_num, 'status': item.status, 'date': item.date.lower(),
+                                'project': item.project.lower(), 'context': item.context.lower(), 'message': item.message})
 
 def read_todo_file():
     """Reads all the records from the file and return them as a list"""
     with open('items.csv') as file:
-        today, tomorrow = get_today_tomorrow()
+        today,tomorrow=get_today_tomorrow()
         csvreader = csv.DictReader(file, delimiter=',')
         items = []
         for row in csvreader:
-            if(row['date'] == today):
-                row['date'] = 'today'
-            elif(row['date'] == tomorrow):
-                row['date'] = 'tomorrow'
-            # colored_date=colored(display_item.serial_num,'yellow')
+            if(row['date']==today):
+                row['date']='today'
+            elif(row['date']==tomorrow):
+                row['date']='tomorrow'
+            #colored_date=colored(display_item.serial_num,'yellow')
             item = Todoitems(row['serial_num'], row['status'], row['date'],
-                             row['message'], row['project'], row['context'])
+                            row['message'], row['project'], row['context'])
             items.append(item)
         return items
 
-
 def get_today_tomorrow():
     """Extract the value of today and tomorrow to display records accordingly"""
-    now = datetime.datetime.now()
-    today_day = str(now.day)
-    today_month = str(now.strftime("%b").lower())
-    today = today_day + ' ' + today_month
-    now += datetime.timedelta(days=1)
-    tomorrow_day = str(now.day)
-    tomorrow_month = str(now.strftime("%b").lower())
-    tomorrow = tomorrow_day + ' ' + tomorrow_month
+    now=datetime.datetime.now()
+    today_day=str(now.day)
+    today_month=str(now.strftime("%b").lower())
+    today=today_day+' '+today_month
+    now+=datetime.timedelta(days=1)
+    tomorrow_day=str(now.day)
+    tomorrow_month=str(now.strftime("%b").lower())
+    tomorrow=tomorrow_day+' '+tomorrow_month
     return today, tomorrow
-
 
 def get_todo_count():
     """Get the count for total number of items in the todo"""
@@ -404,12 +364,10 @@ def get_todo_count():
     current_id += 1
     return current_id
 
-
 def get_date(args):
     """Returns a string of the date from the input"""
     date = ' '.join(item for item in args)
     return str(date)
-
 
 def get_project_names(args):
     """Get list of all the available project names"""
@@ -427,7 +385,6 @@ def get_project_names(args):
             projects.add(item)
     return projects
 
-
 def check_date(args):
     """Checks the date to see if it's valid or not"""
     due_date = args
@@ -437,7 +394,7 @@ def check_date(args):
     elif(len(due_date) == 2):
         valid_days = range(1, 32)
         valid_months = ['jan', 'feb', 'mar', 'apr', 'may',
-                        'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
+                    'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
         day = 0
         if(due_date[0].isdigit()):
             day = int(due_date[0])
@@ -458,25 +415,23 @@ def check_date(args):
     else:
         return 'Not a valid entry, please insert in the form of dd mon'
 
-
 def check_project_context(inputstmt):
     """Check if the given input can be a project name or a context"""
     FirstChar = re.findall('[@]', inputstmt)
     if(len(FirstChar) == 1 and inputstmt.index('@') == 0):
         context_name = inputstmt[1:]
-        return 'context', context_name
+        return 'context',context_name
     else:
-        FirstChar = re.findall('[+]', inputstmt)
+        FirstChar=re.findall('[+]', inputstmt)
         if(len(FirstChar) == 1 and inputstmt.index('+') == 0):
             project_name = inputstmt[1:]
-            return 'project', project_name
+            return 'project',project_name
         else:
-            return 'none', False
-
+            return 'none',False
 
 def get_context(inpt_statement):
     """Extracts the context out of the provided message"""
-    context_strings = re.findall(r'[@][^\s]+', inpt_statement)
+    context_strings = re.findall('[@][^\s]+', inpt_statement)
     contexts = []
     if(len(context_strings) >= 1):
         for item in context_strings:
@@ -488,11 +443,10 @@ def get_context(inpt_statement):
         context = 'none'
     return context
 
-
 def get_project(inpt_stmt):
     """Extracts the projects from the user input message"""
-    project_strings = re.findall(r'[+][^\s]+', inpt_stmt)
-    projects = []
+    project_strings = re.findall('[+][^\s]+', inpt_stmt)
+    projects=[]
     if(len(project_strings) >= 1):
         for items in project_strings:
             project = str(items[1:])
@@ -504,34 +458,41 @@ def get_project(inpt_stmt):
         projects = 'personal'
     return projects
 
-
 def get_duedate(inpt_stmt):
     """gets the word 'due' to find the due date and message"""
     input_message = inpt_stmt.split(' ')
     duedate_current = ''
-    message = inpt_stmt
-
-    if(inpt_stmt.find('due') > 0):
-        due_indexes = []
-        for words in range(len(input_message)):
-            if input_message[words] == 'due':
-                due_indexes.append(words)
-        due_index = due_indexes[len(due_indexes) - 1]
-        message = ' '.join(msg for msg in input_message[0:due_index])
-        duedate = [date for date in input_message[due_index + 1:]]
-        if(check_date(duedate) == 'no error'):
-            duedate_current = get_date(duedate)
-        else:
-            print(check_date(duedate))
+    message=inpt_stmt
+    if(input_message[0]=='due'):
+        return 'tomorrow', False
+    if(input_message.index('due')==len(input_message)-1):
+        return 'tomorrow', False
     else:
-        print('no due found setting it for tomorrow')
-        duedate_current = 'tomorrow'
-    return duedate_current, message
-
+        if(inpt_stmt.find('due') > 0 and input_message[0]!='due'):
+            due_indexes = []
+            for words in range(len(input_message)):
+                if input_message[words] == 'due':
+                    due_indexes.append(words)
+            due_index = due_indexes[len(due_indexes)-1]
+            message = ' '.join(msg for msg in input_message[0:due_index])
+            duedate = [date for date in input_message[due_index+1:]]
+            if(check_date(duedate) == 'no error'):
+                duedate_current = get_date(duedate)
+            else:
+                return 'tomorrow',False
+                print(check_date(duedate))
+        else:
+            print('no due found setting it for tomorrow')
+            duedate_current = 'tomorrow'
+        return duedate_current, message
 
 def add_todo_parser(args):
     """runs all the needed methods to get the message, due date, project and context"""
     project = get_project(args)
     context = get_context(args)
     duedate, message = get_duedate(args)
-    return duedate, message, project, context
+    if not message:
+        #print('Not valid message, try again, run todo help add for more')
+        return duedate, False, project, context
+    else:
+        return duedate, message, project, context
